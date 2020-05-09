@@ -16,25 +16,20 @@ class CPU:
         self.fl = [0] * 8          
         self.reg[7] = 0xF4         
 
-    def load(self):
+    def load(self, filepath, *args):
         """Load a program into memory."""
 
         address = 0
 
-        # For now, we've just hardcoded a program:
+        with open(filepath, 'r') as f:
+            program = f.read().splitlines()
+            program = ['0b'+line[:8] for line in program if
+                       line and line[0] in ['0', '1']]
+            f.close()
 
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
-
+        print(program)
         for instruction in program:
-            self.ram[address] = instruction
+            self.ram[address] = eval(instruction)
             address += 1
 
 
@@ -43,7 +38,7 @@ class CPU:
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        #elif op == "SUB": etc
+        
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -52,6 +47,7 @@ class CPU:
         Handy function to print out the CPU state. You might want to call this
         from run() if you need help debugging.
         """
+        print(self.fl)
         print(f"TRACE: %02X | %02X %02X %02X |" % (
             self.pc,
             #self.fl,
